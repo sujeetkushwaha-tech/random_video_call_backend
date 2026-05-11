@@ -37,10 +37,13 @@ export class UserService {
   }
 
   async findById(id: string) {
-    return await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: {
         id,
       },
     });
+    if (!user) return null;
+    const { password, ...safeUser } = user;
+    return safeUser;
   }
 }

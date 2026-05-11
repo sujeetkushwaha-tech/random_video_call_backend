@@ -6,6 +6,9 @@ import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
+import { MatchmakingModule } from './matchmaking/matchmaking.module';
+import { SocketModule } from './socket/socket.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { getTypeOrmConfig } from './config/typeorm.config';
     }),
     AuthModule,
     UserModule,
+    MatchmakingModule,
+    SocketModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

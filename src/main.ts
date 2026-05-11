@@ -89,31 +89,32 @@ async function bootstrap() {
   /*
     CORS
   */
-  app.enableCors({
-    origin: (origin, callback) => {
-      /*
-        ALLOW POSTMAN / MOBILE APPS
-      */
-      if (!origin) {
-        return callback(null, true);
-      }
+  app.enableCors('*');
+  // app.enableCors({
+  //   origin: (origin, callback) => {
+  //     /*
+  //       ALLOW POSTMAN / MOBILE APPS
+  //     */
+  //     if (!origin) {
+  //       return callback(null, true);
+  //     }
 
-      /*
-        CHECK WHITELIST
-      */
-      if (FRONTEND_URLS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+  //     /*
+  //       CHECK WHITELIST
+  //     */
+  //     if (FRONTEND_URLS.includes(origin)) {
+  //       callback(null, true);
+  //     } else {
+  //       callback(new Error('Not allowed by CORS'));
+  //     }
+  //   },
 
-    credentials: true,
+  //   credentials: true,
 
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  //   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+  //   allowedHeaders: ['Content-Type', 'Authorization'],
+  // });
 
   app.useGlobalInterceptors(new ResponseInterceptor());
 
