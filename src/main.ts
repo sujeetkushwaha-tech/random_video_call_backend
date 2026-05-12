@@ -25,7 +25,7 @@ async function bootstrap() {
   /*
     ENV VALUES
   */
-  const PORT = configService.get<number>('PORT') || 5000;
+  const PORT = configService.get<number>('PORT') || 8000;
 
   /*
     MULTIPLE FRONTEND URLS
