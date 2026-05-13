@@ -36,6 +36,8 @@ async function bootstrap() {
       ?.split(',')
       .map((url) => url.trim()) || [];
 
+  console.log("FRONTEND_URLS", FRONTEND_URLS);
+
   const API_PREFIX = configService.get<string>('API_PREFIX') || 'api';
 
   const API_VERSION = configService.get<string>('API_VERSION') || '1';
@@ -43,7 +45,11 @@ async function bootstrap() {
   /*
     SECURITY HEADERS
   */
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
 
   /*
     ENABLE COMPRESSION
@@ -89,32 +95,16 @@ async function bootstrap() {
   /*
     CORS
   */
-  app.enableCors('*');
-  // app.enableCors({
-  //   origin: (origin, callback) => {
-  //     /*
-  //       ALLOW POSTMAN / MOBILE APPS
-  //     */
-  //     if (!origin) {
-  //       return callback(null, true);
-  //     }
+  // app.enableCors('*');
+  app.enableCors({
+    origin: FRONTEND_URLS,
 
-  //     /*
-  //       CHECK WHITELIST
-  //     */
-  //     if (FRONTEND_URLS.includes(origin)) {
-  //       callback(null, true);
-  //     } else {
-  //       callback(new Error('Not allowed by CORS'));
-  //     }
-  //   },
+    credentials: true,
 
-  //   credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-  //   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-
-  //   allowedHeaders: ['Content-Type', 'Authorization'],
-  // });
+    // allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   app.useGlobalInterceptors(new ResponseInterceptor());
 

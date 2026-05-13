@@ -14,9 +14,15 @@ import { MatchmakingService } from '../matchmaking/matchmaking.service';
 import { SocketService } from './socket.service';
 import { ChatService } from '../chat/chat.service';
 
+// @WebSocketGateway({
+//   cors: {
+//     origin: '*',
+//   },
+// })
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.FRONTEND_URL?.split(',') || [],
+    credentials: true,
   },
 })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
