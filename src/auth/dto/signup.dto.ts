@@ -1,9 +1,12 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   MinLength,
   IsString,
+  IsEnum,
 } from 'class-validator';
+import { Gender } from 'src/user/entities/user.entity';
 
 export class SignupDto {
   @IsString()
@@ -16,4 +19,8 @@ export class SignupDto {
   @IsString()
   @MinLength(6)
   password!: string;
+
+  @IsOptional()
+  @IsEnum(Gender)
+  gender?: Gender;
 }

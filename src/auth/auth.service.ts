@@ -31,6 +31,7 @@ export class AuthService {
       name: signupDto.name,
       email: signupDto.email,
       password: hashedPassword,
+      gender: signupDto.gender,
     });
 
     return {
@@ -81,7 +82,11 @@ export class AuthService {
         image: syncUserDto.image,
         provider: syncUserDto.provider,
         isEmailVerified: true,
+        gender: syncUserDto.gender,
       });
+    } else if (syncUserDto.gender && !user.gender) {
+      // Update gender if not set yet
+      await this.userService.updateUser(user.id, { gender: syncUserDto.gender });
     }
 
     return {

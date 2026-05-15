@@ -7,11 +7,12 @@ export class SocketService {
     {
       partnerId?: string;
       userName?: string;
+      gender?: string;
     }
   >();
 
-  addUser(socketId: string, userName?: string) {
-    this.users.set(socketId, { userName });
+  addUser(socketId: string, userName?: string, gender?: string) {
+    this.users.set(socketId, { userName, gender });
   }
 
   removeUser(socketId: string) {
@@ -36,5 +37,15 @@ export class SocketService {
     const user = this.users.get(socketId);
     if (!user) return;
     user.userName = userName;
+  }
+
+  getUserGender(socketId: string): string | undefined {
+    return this.users.get(socketId)?.gender;
+  }
+
+  setUserGender(socketId: string, gender: string) {
+    const user = this.users.get(socketId);
+    if (!user) return;
+    user.gender = gender;
   }
 }

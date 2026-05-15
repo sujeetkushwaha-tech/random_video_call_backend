@@ -4,6 +4,11 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 
 import { UserRole } from 'src/user-role/entities/user-role.entity';
 
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+}
+
 @Entity('users')
 export class User extends BaseEntity {
   @Column({
@@ -41,9 +46,13 @@ export class User extends BaseEntity {
   })
   refreshToken!: string;
 
-  /*
-    USER <-> ROLE
-  */
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    nullable: true,
+  })
+  gender!: Gender;
+
   @OneToMany(() => UserRole, (userRole) => userRole.user)
   userRoles!: UserRole[];
 }

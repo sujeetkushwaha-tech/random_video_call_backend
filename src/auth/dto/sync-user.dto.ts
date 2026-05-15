@@ -2,7 +2,9 @@ import {
   IsEmail,
   IsOptional,
   IsString,
+  IsEnum,
 } from 'class-validator';
+import { Gender } from 'src/user/entities/user.entity';
 
 export class SyncUserDto {
   @IsOptional()
@@ -18,4 +20,8 @@ export class SyncUserDto {
 
   @IsString()
   provider!: string;
+
+  @IsOptional()
+  @IsEnum(Gender)
+  gender?: Gender;
 }

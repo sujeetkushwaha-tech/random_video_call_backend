@@ -53,11 +53,19 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('find-partner')
-  findPartner(@ConnectedSocket() client: Socket) {
-    const partner = this.matchmakingService.getPartner(client.id);
+  findPartner(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { gender?: string } = {},
+  ) {
+    const { gender } = body;
+
+    const partner = this.matchmakingService.getPartner(
+      client.id,
+      gender || undefined,
+    );
 
     if (!partner) {
-      this.matchmakingService.addToQueue(client.id);
+      this.matchmakingService.addToQueue(client.id, gender);
       client.emit('waiting');
       return;
     }
@@ -74,6 +82,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       partnerId: partner,
       initiator: false,
     });
+  }
+
+  @SubscribeMessage('cancel-search')
+  cancelSearch(@ConnectedSocket() client: Socket) {
+    this.matchmakingService.removeFromQueue(client.id);
+    client.emit('search-cancelled');
   }
 
   @SubscribeMessage('offer')
