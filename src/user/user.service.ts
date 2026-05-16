@@ -52,7 +52,7 @@ export class UserService {
       },
     });
     if (!user) return null;
-    const { password, ...safeUser } = user;
+    const { password, refreshToken, ...safeUser } = user;
     return safeUser;
   }
 }

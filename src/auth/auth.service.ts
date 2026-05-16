@@ -2,8 +2,9 @@ import {
   Injectable,
   BadRequestException,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
-
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { SignupDto } from './dto/signup.dto';
@@ -13,7 +14,27 @@ import { MESSAGES } from 'src/common/constants/messages.constant';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  private generateTokens(user: any) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_SECRET || 'default-secret-change-in-env',
+
+      expiresIn: (process.env.JWT_EXPIRES_IN || '1d') as any,
+    });
+
+    return {
+      accessToken,
+    };
+  }
 
   // =================================================
   // SIGNUP (CREATE USER ONLY)
@@ -34,9 +55,12 @@ export class AuthService {
       gender: signupDto.gender,
     });
 
+    const tokens = this.generateTokens(user);
+
     return {
       message: MESSAGES.AUTH.SIGNUP_SUCCESS,
       user,
+      ...tokens,
     };
   }
 
@@ -63,10 +87,24 @@ export class AuthService {
       throw new UnauthorizedException(MESSAGES.AUTH.INVALID_CREDENTIALS);
     }
 
+    const tokens = this.generateTokens(user);
+
     return {
       message: MESSAGES.AUTH.LOGIN_SUCCESS,
       user,
+      ...tokens,
     };
+  }
+
+  // =================================================
+  // GET CURRENT USER BY ID
+  // =================================================
+  async getMe(userId: string) {
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
   // =================================================
@@ -85,13 +123,17 @@ export class AuthService {
         gender: syncUserDto.gender,
       });
     } else if (syncUserDto.gender && !user.gender) {
-      // Update gender if not set yet
-      await this.userService.updateUser(user.id, { gender: syncUserDto.gender });
+      await this.userService.updateUser(user.id, {
+        gender: syncUserDto.gender,
+      });
     }
+
+    const tokens = this.generateTokens(user);
 
     return {
       message: MESSAGES.AUTH.LOGIN_SUCCESS,
       user,
+      ...tokens,
     };
   }
 

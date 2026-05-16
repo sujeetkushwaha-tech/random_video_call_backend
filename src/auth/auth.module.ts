@@ -11,7 +11,9 @@ import { UserService } from 'src/user/user.service';
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({}),
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_SECRET || 'default-secret-change-in-env',
+    }),
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
@@ -20,5 +22,6 @@ import { UserService } from 'src/user/user.service';
     JwtStrategy,
     UserService,
   ],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

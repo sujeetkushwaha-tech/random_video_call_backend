@@ -36,12 +36,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   handleConnection(client: Socket) {
-    console.log('Connected:', client.id);
     this.socketService.addUser(client.id);
   }
 
   handleDisconnect(client: Socket) {
-    console.log('Disconnected:', client.id);
     const partnerId = this.socketService.getPartner(client.id);
 
     if (partnerId) {
