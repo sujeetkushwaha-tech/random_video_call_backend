@@ -27,6 +27,7 @@ export class User extends BaseEntity {
   password?: string;
 
   @Column({
+    type: 'text',
     nullable: true,
   })
   image!: string;

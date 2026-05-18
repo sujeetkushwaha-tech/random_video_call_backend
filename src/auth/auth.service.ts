@@ -97,42 +97,71 @@ export class AuthService {
   }
 
   // =================================================
-  // GET CURRENT USER BY ID
-  // =================================================
-  async getMe(userId: string) {
-    const user = await this.userService.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
-  // =================================================
   // OAUTH SYNC (GOOGLE / GITHUB / ETC)
   // =================================================
   async syncUser(syncUserDto: SyncUserDto) {
     let user = await this.userService.findByEmail(syncUserDto.email);
 
+    // =========================================
+    // CREATE NEW USER
+    // =========================================
+
     if (!user) {
       user = await this.userService.createUser({
         name: syncUserDto.name,
         email: syncUserDto.email,
+
+        // first time use oauth image
         image: syncUserDto.image,
+
         provider: syncUserDto.provider,
+
         isEmailVerified: true,
+
         gender: syncUserDto.gender,
       });
-    } else if (syncUserDto.gender && !user.gender) {
-      await this.userService.updateUser(user.id, {
-        gender: syncUserDto.gender,
-      });
+    } else {
+      // =========================================
+      // UPDATE ONLY REQUIRED FIELDS
+      // =========================================
+
+      const updatePayload: any = {};
+
+      // update gender only once
+      if (syncUserDto.gender && !user.gender) {
+        updatePayload.gender = syncUserDto.gender;
+      }
+
+      // IMPORTANT:
+      // only use oauth image
+      // if db image does not exist
+      if (!user.image && syncUserDto.image) {
+        updatePayload.image = syncUserDto.image;
+      }
+
+      // OPTIONAL:
+      // update name if empty
+      if (!user.name && syncUserDto.name) {
+        updatePayload.name = syncUserDto.name;
+      }
+
+      // update only if needed
+      if (Object.keys(updatePayload).length > 0) {
+        user = await this.userService.updateUser(user.id, updatePayload) as any;
+      }
     }
+
+    // =========================================
+    // TOKENS
+    // =========================================
 
     const tokens = this.generateTokens(user);
 
     return {
       message: MESSAGES.AUTH.LOGIN_SUCCESS,
+
       user,
+
       ...tokens,
     };
   }

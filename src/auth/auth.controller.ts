@@ -45,22 +45,6 @@ export class AuthController {
 
   /*
     ======================
-    GET CURRENT USER (PROTECTED)
-    ======================
-  */
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async getMe(@Req() req: any) {
-    const userId = req.user?.userId;
-    if (!userId) {
-      return { user: null };
-    }
-    const user = await this.authService.getMe(userId);
-    return { user };
-  }
-
-  /*
-    ======================
     OAUTH SYNC USER (PUBLIC)
     ======================
   */

@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, Gender } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { User, Gender } from './entities/user.entity';
+import * as fs from 'fs';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UserService {
@@ -19,23 +22,36 @@ export class UserService {
 
   async createUser(data: Partial<User>) {
     const user = this.userRepository.create(data);
-
     const savedUser = await this.userRepository.save(user);
 
     /*
-    REMOVE PASSWORD
-  */
+      REMOVE PASSWORD
+    */
     const { password, ...userWithoutPassword } = savedUser;
-
     return userWithoutPassword;
   }
 
+  /*
+    UPDATE USER 
+  */
   async updateUser(userId: string, data: Partial<User>) {
+    // 1. Verify user exists
+    const userExists = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!userExists) {
+      throw new NotFoundException('User not found');
+    }
+
+    // 2. Update — image path already clean from controller
     await this.userRepository.update(userId, data);
+
+    // 3. Return safe user
     const updated = await this.userRepository.findOne({
       where: { id: userId },
     });
-    const { password, ...safeUser } = updated!;
+
+    const { password, refreshToken, ...safeUser } = updated!;
     return safeUser;
   }
 
